@@ -131,6 +131,7 @@ demo()
 
 <p>⭐ Mac OS and Windows 10 and above users can go to <a href="https://github.com/JoeanAmier/TikTokDownloader/releases/latest">Releases</a> or <a href="https://github.com/JoeanAmier/TikTokDownloader/actions">Actions</a> to download the compiled program, ready to use!</p>
 <p>⭐ This project includes GitHub Actions for automatic building executable files. Users can use GitHub Actions to build the latest source code into executable files at any time!</p>
+<p>⭐ For the automatic building executable files tutorial, please refer to the <code>Build of Executable File Guide</code> section of this document. If you need a more detailed step-by-step tutorial with illustrations, please <a href="https://mp.weixin.qq.com/s/TorfoZKkf4-x8IBNLImNuw">check out this article</a>!</p>
 <p><strong>Note: The executable file <code>main</code> on Mac OS may need to be started from the terminal command line. Due to device limitations, the executable file on the Mac OS platform has not been tested, and its usability cannot be guaranteed!</strong></p>
 <hr>
 <ol>
@@ -151,18 +152,18 @@ demo()
 </ol>
 </li>
 <li>Read the disclaimer of DouK-Downloader and enter content according to the prompt.</li>
-<li>Write Cookie information into the configuration file
-<ol><b>Manually copy and paste Cookie</b>
-<li>Refer to <a href="https://github.com/JoeanAmier/TikTokDownloader/blob/master/docs/Cookie%E8%8E%B7%E5%8F%96%E6%95%99%E7%A8%8B.md">Cookie Extraction Tutorial</a>, copy the required Cookie to the clipboard.</li>
-<li>Select the option to <code>copy and paste to write Cookie</code>, and follow the prompts to write the Cookie into the configuration file.</li>
+<li>Write Cookie Information into Configuration File 
+<ol><b>Read Cookie from Clipboard</b>
+<li>Refer to the <a href="https://github.com/JoeanAmier/TikTokDownloader/blob/master/docs/Cookie%E8%8E%B7%E5%8F%96%E6%95%99%E7%A8%8B.md">Cookie Extraction Tutorial</a>, copy the required Cookie to the clipboard</li>
+<li>Select the <code>Read Cookie from Clipboard</code> option, the program will automatically read the Cookie from the clipboard and write it into the configuration file</li>
 </ol>
-<ol><b>Get Cookie from Browser</b>
-<li>Select the option <code>Get Cookie from Browser</code> and follow the prompts to choose the browser type.</li>
+<ol><b>Read Cookie from Browser</b>
+<li>Select the <code>Read Cookie from Browser</code> option, then follow the prompts to input the browser type or its corresponding number</li>
 </ol>
-<ol><b><del>Scan code login to get Cookie</del> (Disabled)</b>
-<li><del>Select the option <code>Scan code login to get Cookie</code>, and the program will display a login QR code image and open the image with the default application.</del></li>
-<li><del>Use the DouYin APP to scan the QR code and log into your account.</del></li>
-<li><del>Follow the prompts to write the Cookie into the configuration file.</del></li>
+<ol><b><del>Obtain Cookie via QR Code Login</del> (No longer valid)</b>
+<li><del>Select the <code>Obtain Cookie via QR Code Login</code> option, the program will display a login QR code image and open it with the default application</del></li>
+<li><del>Use the TikTok app to scan the QR code and log in</del></li>
+<li><del>Follow the prompts, the program will automatically write the Cookie into the configuration file</del></li>
 </ol>
 </li>
 <li>Return to the program interface, sequentially select <code>Terminal interactive mode</code> -> <code>Batch download link works (general)</code> -> <code>Manually enter the link of the works to be collected</code>.</li>
@@ -403,11 +404,16 @@ repository to execute the build process
 
 ***
 
+## DartNode
+
+[![Powered by DartNode](https://dartnode.com/branding/DN-Open-Source-sm.png)](https://dartnode.com "Powered by DartNode - Free VPS for Open Source")
+
+***
+
 ## TikHub
 
-<p><a href="https://tikhub.io/">TikHub</a> is a leading data interface service provider, specializing in offering high-quality data interfaces for multiple popular platforms, including DouYin, TikTok, Xiaohongshu, Instagram, Twitter, and Kuaishou.</p>
-<p>TikHub also provides customized services such as live streaming room monitoring, post monitoring, and influencer monitoring to meet the needs of different business scenarios.</p>
-<p>Through daily sign-ins, users can obtain a certain quota of usage for free. You can use my <strong>referral link</strong>：<a href="https://user.tikhub.io/users/signup?referral_code=ZrdH8McC">https://user.tikhub.io/users/signup?referral_code=ZrdH8McC</a> or <strong>Referral Code</strong>：<code>ZrdH8McC</code>，Register and recharge to receive <code>$2</code> limit！</p>
+<p><a href="https://tikhub.io/">TikHub</a>: Third-party API provider offering multi-platform APIs.</p>
+<p>Through daily check-ins, users can earn a small amount of free usage credits. You can also use my <strong>referral link</strong>: <a href="https://user.tikhub.io/users/signup?referral_code=ZrdH8McC">https://user.tikhub.io/users/signup?referral_code=ZrdH8McC</a> or <strong>referral code</strong>: <code>ZrdH8McC</code>, register and top up to get a $2 credit!</p>
 
 # 💡 Project References
 

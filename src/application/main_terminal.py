@@ -12,6 +12,7 @@ from ..custom import suspend
 from ..downloader import Downloader
 from ..extract import Extractor
 from ..interface import (
+    API,
     Account,
     AccountTikTok,
     Collection,
@@ -103,15 +104,22 @@ class TikTok:
         self,
         parameter: "Parameter",
         database: "Database",
+        server_mode: bool = False,
     ):
         self.run_command = None
         self.parameter = parameter
         self.database = database
         self.console = parameter.console
         self.logger = parameter.logger
+        API.init_progress_object(
+            server_mode,
+        )
         self.links = LinkExtractor(parameter)
         self.links_tiktok = ExtractorTikTok(parameter)
-        self.downloader = Downloader(parameter)
+        self.downloader = Downloader(
+            parameter,
+            server_mode,
+        )
         self.extractor = Extractor(parameter)
         self.storage = bool(parameter.storage_format)
         self.record = RecordManager()
@@ -1315,6 +1323,7 @@ class TikTok:
         detail_id: str,
         cookie: str = None,
         proxy: str = None,
+        source: bool = False,
         **kwargs,
     ) -> list:
         if data := await Comment(
@@ -1324,7 +1333,7 @@ class TikTok:
             detail_id=detail_id,
             **kwargs,
         ).run():
-            return await self.save_comment(detail_id, data)
+            return data if source else await self.save_comment(detail_id, data)
         return []
 
     async def comment_handle_single_tiktok(
@@ -1332,6 +1341,7 @@ class TikTok:
         detail_id: str,
         cookie: str = None,
         proxy: str = None,
+        source: bool = False,
         **kwargs,
     ) -> list: ...
 

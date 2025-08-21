@@ -17,9 +17,9 @@ class Live(API):
         params: Union["Parameter", "Params"],
         cookie: str = "",
         proxy: str = None,
-        web_rid=None,
-        room_id=None,
-        sec_user_id=None,
+        web_rid: str = ...,
+        room_id: str = ...,
+        sec_user_id: str = "",
     ):
         super().__init__(params, cookie, proxy)
         self.black_headers = params.headers_download
@@ -32,22 +32,22 @@ class Live(API):
         *args,
         **kwargs,
     ) -> dict:
-        if self.web_rid:
+        if isinstance(self.web_rid, str):
             return await self.with_web_rid()
-        elif self.room_id and self.sec_user_id:
+        elif self.room_id:
             return await self.with_room_id()
         else:
             raise DownloaderError
 
     async def with_web_rid(self) -> dict:
         self.set_referer("https://live.douyin.com/")
-        params = {
+        params = {  # TODO: 参数固定
             "aid": "6383",
             "app_name": "douyin_web",
             "live_id": "1",
             "device_platform": "web",
             "language": "zh-CN",
-            "enter_from": "link_share",
+            "enter_from": "web_share_link",
             "cookie_enabled": "true",
             "screen_width": "1536",
             "screen_height": "864",
@@ -73,7 +73,6 @@ class Live(API):
             "live_id": "1",
             "room_id": self.room_id,
             "sec_user_id": self.sec_user_id,
-            "version_code": "99.99.99",
             "app_id": "1128",
         }
         return await self.request_data(
@@ -89,7 +88,6 @@ async def test():
     async with Params() as params:
         i = Live(
             params,
-            web_rid="",
             room_id="",
         )
         print(await i.run())

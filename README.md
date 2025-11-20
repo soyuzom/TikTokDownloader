@@ -16,8 +16,9 @@
 <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/JoeanAmier/TikTokDownloader/total?style=flat-square&color=ffdd59">
 </div>
 <br>
-<p>🔥 <b>TikTok 发布/喜欢/合辑/直播/视频/图集/音乐；抖音发布/喜欢/收藏/收藏夹/视频/图集/实况/直播/音乐/合集/评论/账号/搜索/热榜数据采集工具：</b>完全开源，基于 HTTPX 模块实现的免费数据采集和文件下载工具；批量下载抖音账号发布、喜欢、收藏、收藏夹作品；批量下载 TikTok 账号发布、喜欢作品；下载抖音链接或 TikTok 链接作品；获取抖音直播推流地址；下载抖音直播视频；获取 TikTok 直播推流地址；下载 TikTok 直播视频；采集抖音作品评论数据；批量下载抖音合集作品；批量下载 TikTok 合辑作品；采集抖音账号详细数据；采集抖音用户 / 作品 / 直播搜索结果；采集抖音热榜数据。</p>
+<p>🔥 <b>TikTok 发布/喜欢/合辑/直播/视频/图集/音乐；抖音发布/喜欢/收藏/收藏夹/视频/图集/实况/直播/音乐/合集/评论/账号/搜索/热榜数据采集工具：</b>完全开源，基于 HTTPX 模块实现的免费数据采集和文件下载工具；批量下载抖音账号发布、喜欢、收藏、收藏夹作品；批量下载 TikTok 账号发布、喜欢作品；下载抖音链接或 TikTok 链接作品；获取抖音直播拉流地址；下载抖音直播视频；获取 TikTok 直播拉流地址；下载 TikTok 直播视频；采集抖音作品评论数据；批量下载抖音合集作品；批量下载 TikTok 合辑作品；采集抖音账号详细数据；采集抖音用户 / 作品 / 直播搜索结果；采集抖音热榜数据。</p>
 <p>⭐ 本项目历史名称：<code>TikTokDownloader</code></p>
+<p>📣 本项目将于未来进行代码结构重构，目标是让代码更加稳健，并具备更好的可维护性与扩展性；如果你对项目设计、实现方式或优化思路有想法，欢迎提出建议或参与讨论！</p>
 <hr>
 
 # 📝 项目功能
@@ -39,8 +40,8 @@
 <li>✅ 持久化保存采集数据</li>
 <li>✅ 支持 CSV/XLSX/SQLite 格式保存数据</li>
 <li>✅ 下载动态/静态封面图</li>
-<li>✅ 获取抖音直播推流地址</li>
-<li>✅ 获取 TikTok 直播推流地址</li>
+<li>✅ 获取抖音直播拉流地址</li>
+<li>✅ 获取 TikTok 直播拉流地址</li>
 <li>✅ 调用 ffmpeg 下载直播</li>
 <li>✅ Web UI 交互界面</li>
 <li>✅ 采集抖音作品评论数据</li>
@@ -385,9 +386,9 @@ A: 由于权限限制，您无法直接触发主仓库的 Actions。请通过 Fo
 
 ## TikHub
 
-<p><a href="https://tikhub.io/?utm_source=github&utm_medium=readme&utm_campaign=tiktok_downloader&ref=github_joeanamier_tiktokdownloader"><img src="docs/TIKHUB_AD.jpg" alt="TIKHUB"></a></p>
+<p><a href="https://tikhub.io/?utm_source=github&utm_medium=readme&utm_campaign=tiktok_downloader&ref=github_joeanamier_tiktokdownloader"><img src="docs/TIKHUB_AD.jpg" alt="TIKHUB" width="458" height="319"></a></p>
 <p><a href="https://tikhub.io/?utm_source=github&utm_medium=readme&utm_campaign=tiktok_downloader&ref=github_joeanamier_tiktokdownloader">TikHub API</a> 提供超过 700 个端点，可用于从 14+ 个社交媒体平台获取与分析数据 —— 包括视频、用户、评论、商店、商品与趋势等，一站式完成所有数据访问与分析。</p>
-<p>通过 <strong>邀请链接</strong>：<a href="https://user.tikhub.io/users/signup?referral_code=ZrdH8McC">https://user.tikhub.io/users/signup?referral_code=ZrdH8McC</a> 或 <strong>邀请码</strong>：<code>ZrdH8McC</code>，注册并充值即可获得 <code>$2</code> 额度！</p>
+<p>使用 <strong>邀请码</strong>：<code>ZrdH8McC</code> 注册并充值即可获得 <code>$2</code> 额度。</p>
 
 # ✉️ 联系作者
 
@@ -413,6 +414,7 @@ A: 由于权限限制，您无法直接触发主仓库的 Actions。请通过 Fo
 * https://github.com/Johnserf-Seed/f2
 * https://github.com/Johnserf-Seed/TikTokDownload
 * https://github.com/Evil0ctal/Douyin_TikTok_Download_API
+* https://github.com/justbeluga/tiktok-web-reverse-engineering
 * https://github.com/NearHuiwen/TiktokDouyinCrawler
 * https://github.com/ihmily/DouyinLiveRecorder
 * https://github.com/encode/httpx/

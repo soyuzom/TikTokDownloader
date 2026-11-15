@@ -610,7 +610,7 @@ class TikTok:
             earliest=earliest,
             latest=latest,
             tiktok=tiktok,
-            mode=tab,
+            mode=tab or "post",
             info=info,
         )
 
@@ -635,6 +635,7 @@ class TikTok:
             earliest,
             latest,
             pages,
+            **kwargs,
         ).run()
 
     async def _get_account_data_tiktok(
@@ -658,6 +659,7 @@ class TikTok:
             earliest,
             latest,
             pages,
+            **kwargs,
         ).run()
 
     async def get_user_info_data(

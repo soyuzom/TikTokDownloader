@@ -1,20 +1,34 @@
 from asyncio import sleep
-from random import randint
+from math import log
+from random import lognormvariate
 from typing import TYPE_CHECKING
+
 from src.translation import _
 
 if TYPE_CHECKING:
     from src.tools import ColorfulConsole
 
 
-async def wait() -> None:
+def get_wait_time(
+    avg_delay: float | int = 6.0,
+    sigma: float = 0.5,
+) -> float:
+    mu = log(avg_delay) - (sigma**2 / 2)
+    return min(33.3, max(1.5, lognormvariate(mu, sigma)))
+
+
+async def wait(
+    **kwargs,
+) -> None:
     """
     设置网络请求间隔时间，仅对获取数据生效，不影响下载文件
     """
     # 随机延时
-    await sleep(randint(5, 20) * 0.1)
-    # 固定延时
-    # await sleep(1)
+    await sleep(
+        get_wait_time(
+            **kwargs,
+        )
+    )
     # 取消延时
     # pass
 
@@ -65,3 +79,8 @@ async def suspend(count: int, console: "ColorfulConsole") -> None:
 def is_valid_token(token: str) -> bool:
     """Web API 接口模式 和 Web UI 交互模式 token 参数验证"""
     return True
+
+
+if __name__ == "__main__":
+    for _ in range(100):
+        print(get_wait_time(avg_delay=15))

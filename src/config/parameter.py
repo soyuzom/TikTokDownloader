@@ -4,7 +4,8 @@ from time import localtime, strftime
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any, Type
 
-from httpx import HTTPStatusError, RequestError, TimeoutException, get
+from curl_cffi.requests import get
+from curl_cffi.requests.exceptions import RequestException, Timeout
 
 from ..custom import (
     BLANK_PREVIEW,
@@ -12,28 +13,35 @@ from ..custom import (
     DATA_HEADERS_TIKTOK,
     DOWNLOAD_HEADERS,
     DOWNLOAD_HEADERS_TIKTOK,
+    IMPERSONATE,
     PARAMS_HEADERS,
     PARAMS_HEADERS_TIKTOK,
-    PROJECT_ROOT,
     QRCODE_HEADERS,
     TIMEOUT,
-    USERAGENT,
+    VOLUME,
 )
 from ..encrypt import (
-    ABogus,
+    DouYinParams,
     MsToken,
     MsTokenTikTok,
+    TikTokParams,
     TtWid,
     TtWidTikTok,
-    XBogus,
-    XGnarly,
 )
 from ..extract import Extractor
 from ..interface import API, APITikTok
 from ..module import FFMPEG
 from ..record import BaseLogger, LoggerManager
 from ..storage import RecordManager
-from ..tools import Cleaner, DownloaderError, cookie_dict_to_str, create_client
+from ..tools import (
+    Cleaner,
+    DownloaderError,
+    cookie_dict_to_str,
+    cookie_str_to_dict,
+    create_client,
+    get_ua_sync,
+    load_objects_from_external_py,
+)
 from ..translation import _
 
 if TYPE_CHECKING:
@@ -56,7 +64,6 @@ class Parameter:
         "type",
     )
     CLEANER = Cleaner()
-    HEADERS = {"User-Agent": USERAGENT}
     NO_PROXY = {
         "http://": None,
         "https://": None,
@@ -99,6 +106,7 @@ class Parameter:
         owner_url: dict,
         owner_url_tiktok: dict,
         live_qualities: str,
+        original_quality: bool,
         ffmpeg: str,
         recorder: "DownloadRecorder",
         browser_info: dict,
@@ -110,20 +118,20 @@ class Parameter:
     ):
         self.settings = settings
         self.cookie_object = cookie_object
-        self.ROOT = PROJECT_ROOT  # 项目根路径
-        self.cache = PROJECT_ROOT.joinpath("Cache")  # 缓存路径
-        self.logger = logger(PROJECT_ROOT, console)
+        self.ROOT = VOLUME  # 项目根路径
+        self.cache = VOLUME.joinpath("Cache")  # 缓存路径
+        self.logger = logger(VOLUME, console)
         self.logger.run()
-        self.ab = ABogus()
-        self.xb = XBogus()
-        self.xg = XGnarly()
+        self.douyin_params, self.tiktok_params = self.check_objects_from_external_py(
+            console
+        )
         self.console = console
         self.recorder = recorder
         self.preview = BLANK_PREVIEW
         self.ms_token = ""
         self.ms_token_tiktok = ""
 
-        self.headers = DATA_HEADERS
+        self.headers = DATA_HEADERS | {"x-tt-argus": "1"}
         self.headers_tiktok = DATA_HEADERS_TIKTOK
         self.headers_download = DOWNLOAD_HEADERS
         self.headers_download_tiktok = DOWNLOAD_HEADERS_TIKTOK
@@ -176,6 +184,7 @@ class Parameter:
         self.run_command = self.__check_run_command(run_command)
         self.ffmpeg = self.__generate_ffmpeg_object(ffmpeg)
         self.live_qualities = self.__check_live_qualities(live_qualities)
+        self.original_quality = self.check_bool_false(original_quality)
         self.douyin_platform = self.check_bool_true(
             douyin_platform,
         )
@@ -183,6 +192,16 @@ class Parameter:
             tiktok_platform,
         )
 
+        self.impersonate = browser_info.pop(
+            "impersonate",
+            IMPERSONATE,
+        )
+        self.impersonate_tiktok = browser_info_tiktok.pop(
+            "impersonate",
+            IMPERSONATE,
+        )
+        self.user_agent = get_ua_sync(self.impersonate)
+        self.user_agent_tiktok = get_ua_sync(self.impersonate_tiktok)
         self.browser_info = self.merge_browser_info(
             browser_info,
             {},
@@ -203,10 +222,12 @@ class Parameter:
         self.client = create_client(
             timeout=self.timeout,
             proxy=self.proxy,
+            impersonate=self.impersonate,
         )
         self.client_tiktok = create_client(
             timeout=self.timeout,
             proxy=self.proxy_tiktok,
+            impersonate=self.impersonate_tiktok,
         )
 
         self.__generate_folders()
@@ -243,6 +264,7 @@ class Parameter:
             "run_command": self.__check_run_command,
             "ffmpeg": self.__generate_ffmpeg_object,
             "live_qualities": self.__check_live_qualities,
+            "original_quality": self.check_bool_false,
             "douyin_platform": self.check_bool_true,
             "tiktok_platform": self.check_bool_true,
         }
@@ -466,9 +488,9 @@ class Parameter:
             try:
                 response = get(
                     url,
-                    headers=self.HEADERS,
-                    follow_redirects=True,
                     timeout=TIMEOUT,
+                    impersonate=IMPERSONATE,
+                    allow_redirects=True,
                     proxy=proxy,
                 )
                 response.raise_for_status()
@@ -478,17 +500,14 @@ class Parameter:
                     )
                 )
                 return proxy
-            except TimeoutException:
+            except Timeout:
                 self.logger.warning(
                     _("{remark}代理 {proxy} 测试超时").format(
                         remark=remark, proxy=proxy
                     )
                 )
                 return None
-            except (
-                RequestError,
-                HTTPStatusError,
-            ) as e:
+            except (RequestException,) as e:
                 self.logger.warning(
                     _("{remark}代理 {proxy} 测试失败：{error}").format(
                         remark=remark, proxy=proxy, error=e
@@ -805,6 +824,12 @@ class Parameter:
     def set_uif_id(
         self,
     ) -> None:
+        if uifid := self.__get_cookie_uifid():
+            self.headers["uifid"] = uifid
+        elif self.cookie_dict or self.cookie_str:
+            self.logger.warning(
+                _("抖音 cookie 缺少 uifid 键值对，请尝试重新写入 cookie"),
+            )
         if self.cookie_dict:
             API.params["uifid"] = self.cookie_dict.get("UIFID", "")
         elif self.cookie_str:
@@ -812,6 +837,13 @@ class Parameter:
                 self.cookie_str,
                 "UIFID",
             )
+
+    def __get_cookie_uifid(self) -> str:
+        cookie = self.cookie_dict or cookie_str_to_dict(self.cookie_str)
+        return next(
+            (value for key, value in cookie.items() if key.lower() == "uifid"),
+            "",
+        )
 
     @staticmethod
     def __generate_ffmpeg_object(ffmpeg_path: str) -> FFMPEG:
@@ -850,6 +882,7 @@ class Parameter:
             "max_pages": self.max_pages,
             "run_command": " ".join(self.run_command[::-1]),
             "ffmpeg": self.ffmpeg.path or "",
+            "original_quality": self.original_quality,
         }
 
     async def set_settings_data(
@@ -976,10 +1009,12 @@ class Parameter:
         self.client = create_client(
             timeout=self.timeout,
             proxy=self.proxy,
+            impersonate=self.impersonate,
         )
         self.client_tiktok = create_client(
             timeout=self.timeout,
             proxy=self.proxy_tiktok,
+            impersonate=self.impersonate_tiktok,
         )
 
     @staticmethod
@@ -990,6 +1025,16 @@ class Parameter:
         return browser_info | new_info
 
     def set_browser_info(self, browser_info: dict, browser_info_tiktok: dict):
+        self.impersonate = browser_info.pop(
+            "impersonate",
+            IMPERSONATE,
+        )
+        self.impersonate_tiktok = browser_info_tiktok.pop(
+            "impersonate",
+            IMPERSONATE,
+        )
+        self.user_agent = get_ua_sync(self.impersonate)
+        self.user_agent_tiktok = get_ua_sync(self.impersonate_tiktok)
         self.browser_info = self.merge_browser_info(
             self.browser_info,
             browser_info or {},
@@ -1006,8 +1051,8 @@ class Parameter:
         return value if isinstance(value, str) else ""
 
     async def close_client(self) -> None:
-        await self.client.aclose()
-        await self.client_tiktok.aclose()
+        await self.client.close()
+        await self.client_tiktok.close()
 
     def __generate_folders(self):
         self.compatible()
@@ -1018,18 +1063,6 @@ class Parameter:
         info: dict[str, str],
     ) -> None:
         self.logger.info(f"抖音浏览器信息: {info}", False)
-        if ua := info.get(
-            "User-Agent",
-        ):
-            for i in (
-                self.headers,
-                self.headers_download,
-                self.headers_params,
-                self.headers_qrcode,
-            ):
-                i["User-Agent"] = ua
-        else:
-            ua = USERAGENT
         for i in (
             "pc_libra_divert",
             "browser_language",
@@ -1046,27 +1079,12 @@ class Parameter:
                 i,
             ):
                 API.params[i] = v
-        self.ab = ABogus(
-            ua,
-            info.get(
-                "browser_platform",
-            ),
-        )
 
     def __set_browser_info_tiktok(
         self,
         info: dict,
     ):
         self.logger.info(f"TikTok 浏览器信息: {info}", False)
-        if ua := info.get(
-            "User-Agent",
-        ):
-            for i in (
-                self.headers_tiktok,
-                self.headers_download_tiktok,
-                self.headers_params_tiktok,
-            ):
-                i["User-Agent"] = ua
         for i in (
             "app_language",
             "browser_language",
@@ -1187,3 +1205,19 @@ class Parameter:
             old := self.ROOT.parent.joinpath("Cache")
         ).exists() and not self.cache.exists():
             move(old, self.cache)
+
+    @staticmethod
+    def check_objects_from_external_py(console: "ColorfulConsole"):
+        # if not is_node_available():
+        #     console.print(_("未检测到 Node.js，部分功能可能受到影响！"))
+        objects = load_objects_from_external_py(
+            "encipher.py",
+            [
+                "DouYinParams",
+                "TikTokParams",
+            ],
+            console,
+        )
+        douyin_params = objects.get("DouYinParams", DouYinParams)
+        tiktok_params = objects.get("TikTokParams", TikTokParams)
+        return douyin_params(), tiktok_params()
